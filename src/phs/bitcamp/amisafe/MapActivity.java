@@ -1,5 +1,7 @@
 package phs.bitcamp.amisafe;
 
+import java.util.List;
+
 import phs.bitcamp.amisafe.data.Crime;
 import phs.bitcamp.amisafe.data.CrimeIncidents;
 import android.app.Activity;
@@ -151,9 +153,9 @@ public class MapActivity extends Activity {
 	}
 
 	private void findCrime(double lat, double lng) {
-		Crime[] crimes = CrimeIncidents.getNearbyCrimes(lat, lng);
+		List<Crime> crimes = CrimeIncidents.getNearbyCrimes(lat, lng);
 
-		Log.i("findCrime", "Found " + crimes.length + " crimes by (" + lat + "," + lng + ").");
+		Log.i("findCrime", "Found " + crimes.size() + " crimes by (" + lat + "," + lng + ").");
 		for (Crime crime : crimes) {
 			Log.i("findCrime", "Crime: " + crime);
 			map.addMarker(new MarkerOptions().position(new LatLng(crime.getCoords()[0], crime.getCoords()[1]))
