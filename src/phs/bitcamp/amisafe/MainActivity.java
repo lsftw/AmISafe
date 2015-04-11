@@ -1,5 +1,6 @@
 package phs.bitcamp.amisafe;
 
+import phs.bitcamp.amisafe.data.CrimeIncidents;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +17,12 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+//		CrimeIncidents.readCrimeIncidents(this);
+
+		setupGui();
+	}
+
+	private void setupGui() {
 		Button viewRunsButton = (Button) findViewById(R.id.nextScreenButton);
 		viewRunsButton.setOnClickListener(new OnClickListener(){
 			@Override
