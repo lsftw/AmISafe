@@ -35,7 +35,10 @@ public class MapActivity extends Activity {
 		viewRunsButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(MapActivity.this, MainActivity.class);
+				//Intent intent = new Intent(MapActivity.this, MainActivity.class);
+				//startActivity(intent);
+				
+				
 				//If they push custom route, then show the "From" and "To" buttons.
 				//They can click "From" and then click on a location to set initial location.
 				//Then click "To" for the same thing. This way we'll have our two points
@@ -48,7 +51,7 @@ public class MapActivity extends Activity {
 				customrouteButton.setVisibility(View.GONE);
 				fromButton.setVisibility(View.VISIBLE);
 				toButton.setVisibility(View.VISIBLE);
-				startActivity(intent);
+				
 			}
 		});
 	}
