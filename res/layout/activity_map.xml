@@ -13,9 +13,36 @@
 	    android:name="com.google.android.gms.maps.MapFragment"
 	    android:layout_width="match_parent"
 	    android:layout_height="320dp"
-	    android:layout_alignParentLeft="true"
-	    android:layout_alignParentRight="true"
-	    android:layout_alignParentTop="true"
+	    android:layout_alignParentBottom="true"
+	    android:layout_below="@+id/customroute1"
+	    android:layout_centerHorizontal="true"
 	    tools:context=".PreviewRunActivity" />
+
+	<Button
+	    android:id="@+id/customroute1"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignLeft="@+id/preview_map"
+	    android:layout_alignParentTop="true"
+	    android:text="Custom Route" />
+
+	<Button
+	    android:id="@+id/ToLocation"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_above="@+id/preview_map"
+	    android:layout_alignRight="@+id/preview_map"
+	    android:visibility="gone"
+	    android:text="To" />
+
+	<Button
+	    android:id="@+id/FromLocation"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignBaseline="@+id/ToLocation"
+	    android:layout_alignBottom="@+id/ToLocation"
+	    android:layout_toLeftOf="@+id/ToLocation"
+	    android:visibility="gone"
+	    android:text="From" />
     
 </RelativeLayout>

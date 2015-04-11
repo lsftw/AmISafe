@@ -38,6 +38,9 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				Intent intent = new Intent(MainActivity.this, MapActivity.class);
 				startActivity(intent);
+				//Need to pull info from the "From" and "To" fields and use that to compute
+				//and display the new address
+				
 			}
 		});
 	}
