@@ -1,11 +1,12 @@
 package phs.bitcamp.amisafe;
 
-import java.io.IOException;
 
 import phs.bitcamp.amisafe.data.CrimeIncidents;
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -16,21 +17,16 @@ import android.widget.Button;
 
 public class MainActivity extends Activity {
 
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
-		// CrimeIncidents.readCrimeIncidents(this);
-		Log.i("BETTERTAG", "in db load");
-		loadDatabase();
-		
+		CrimeIncidents.loadDatabase(this);
 		setupGui();
-
-
-
+		
 	}
-
+	
 	private void setupGui() {
 		Button viewRunsButton = (Button) findViewById(R.id.nextScreenButton);
 		viewRunsButton.setOnClickListener(new OnClickListener() {
@@ -40,37 +36,6 @@ public class MainActivity extends Activity {
 				startActivity(intent);
 			}
 		});
-	}
-
-	private void loadDatabase() {
-		Log.i("testWOOGAOOGAtest", "in db load");
-		DatabaseHelper myDbHelper = new DatabaseHelper(this);
-		
-		Log.i("testWOOGAOOGAtest", "in db load");
-		try {
-
-			myDbHelper.createDataBase();
-			
-			Log.i("testWOOGAOOGAtest", "creating db");
-		} catch (IOException ioe) {
-			
-			Log.i("testWOOGAOOGAtest", "error in creating");
-			throw new Error("Unable to create database");
-
-		}
-
-		try {
-
-			myDbHelper.openDataBase();
-
-		} catch (SQLException sqle) {
-
-			throw sqle;
-
-		}
-
-		myDbHelper.close();
-
 	}
 
 	@Override
