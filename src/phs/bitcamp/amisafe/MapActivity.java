@@ -5,12 +5,24 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.LatLng;
+
 public class MapActivity extends Activity {
+	private GoogleMap map;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_map);
+
+		// Get map fragment
+		MapFragment mapFragment = (MapFragment) getFragmentManager()
+				.findFragmentById(R.id.preview_map);
+		map = mapFragment.getMap();
+		map.setMyLocationEnabled(true);
 	}
 
 	@Override
@@ -30,5 +42,13 @@ public class MapActivity extends Activity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	// Zoom to a given point on the map.
+	private void zoomToLocation(double lat, double lon) {
+		if (map != null) {
+			LatLng coordinates = new LatLng(lat, lon);
+			map.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 17f));
+		}
 	}
 }
