@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">AmISafe</string>
+    <string name="map_name">AmISafe - Map Screen</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
