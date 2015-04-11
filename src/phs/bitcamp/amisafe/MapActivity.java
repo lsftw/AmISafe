@@ -48,7 +48,7 @@ public class MapActivity extends Activity {
 				View customrouteButton = findViewById(R.id.customroute1);
 				View fromButton = findViewById(R.id.FromLocation);
 				View toButton = findViewById(R.id.ToLocation);
-				customrouteButton.setVisibility(View.GONE);
+				customrouteButton.setVisibility(View.INVISIBLE);
 				fromButton.setVisibility(View.VISIBLE);
 				toButton.setVisibility(View.VISIBLE);
 				

@@ -32,9 +32,9 @@
 	    android:layout_height="wrap_content"
 	    android:layout_above="@+id/preview_map"
 	    android:layout_alignRight="@+id/preview_map"
-	    android:visibility="gone"
+	   
 	    android:text="To" />
-
+ <!-- android:visibility="gone"-->
 	<Button
 	    android:id="@+id/FromLocation"
 	    android:layout_width="wrap_content"
@@ -42,7 +42,7 @@
 	    android:layout_alignBaseline="@+id/ToLocation"
 	    android:layout_alignBottom="@+id/ToLocation"
 	    android:layout_toLeftOf="@+id/ToLocation"
-	    android:visibility="gone"
+	 
 	    android:text="From" />
-    
+      <!--   android:visibility="gone"-->
 </RelativeLayout>
