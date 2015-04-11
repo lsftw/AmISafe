@@ -30,6 +30,7 @@
         
         <activity
             android:name=".MapActivity"
+            android:exported="true"
             android:label="@string/map_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

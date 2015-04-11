@@ -2,6 +2,7 @@ package phs.bitcamp.amisafe.data;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import phs.bitcamp.amisafe.DatabaseHelper;
 import android.content.Context;
@@ -14,10 +15,9 @@ public class CrimeIncidents {
 	public static SQLiteDatabase myDB;
 	private static final double NEARBY_RANGE = 0.0005*0 +5; 
 		
-	public static Crime[] getNearbyCrimes(double lat, double lon){
-		Crime[] crimes;
+	public static List<Crime> getNearbyCrimes(double lat, double lon){
 		ArrayList<Crime> crimeList = new ArrayList<Crime>();
-		String selectQuery = "SELECT _id, tod, offense, lat, long FROM android_manifest WHERE " +
+		String selectQuery = "SELECT _id, tod, offense, lat, long FROM android_manifest a WHERE " +
 				"a.lat BETWEEN ? and ? AND a.long BETWEEN ? and ?";
 		String[] ranges = { 
 				"" + (lat - NEARBY_RANGE), "" + (lat + NEARBY_RANGE), //latitude range
@@ -42,8 +42,7 @@ public class CrimeIncidents {
 		    
 		}
 		c.close();
-		crimes = (Crime[]) crimeList.toArray();
-		return crimes;
+		return crimeList;
 	}
 	
 	public static void loadDatabase(Context currentContext) {
