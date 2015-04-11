@@ -1,7 +1,11 @@
 package phs.bitcamp.amisafe;
 
+import phs.bitcamp.amisafe.data.Crime;
+import phs.bitcamp.amisafe.data.CrimeIncidents;
 import android.app.Activity;
+import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,24 +17,27 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapActivity extends Activity {
 	private GoogleMap map;
+	private boolean crimesDisplayed = false;
+
 	boolean fromSelected, toSelected, fromLocSet, toLocSet;
 	LatLng fromLocation, toLocation;
-	Button fromLocationButton = (Button) findViewById(R.id.FromLocation);
-	Button toLocationButton = (Button) findViewById(R.id.ToLocation);
-	
+	Button fromLocationButton;
+	Button toLocationButton;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_map);
 
+		CrimeIncidents.loadDatabase(this);
 		setupGui();
 		// Get map fragment
 
 	}
-
 
 	public void updateButtons() {
 		if (fromLocSet && toLocSet) {
@@ -40,7 +47,7 @@ public class MapActivity extends Activity {
 			toLocSet = false;
 			pathfind();
 		}
-		
+
 		if (fromSelected) {
 			fromLocationButton.setEnabled(false);
 			toLocationButton.setEnabled(true);			
@@ -51,22 +58,24 @@ public class MapActivity extends Activity {
 			fromLocationButton.setEnabled(true);
 			toLocationButton.setEnabled(true);
 		}
-		
+
 		if (fromLocSet) {
 			fromLocationButton.setText("From Set");
 		} 
 		if (toLocSet) {
 			toLocationButton.setText("To Set");
 		}
-		
+
 	}
-	
+
 	public void pathfind() {
-		
+
 	}
-	
-	public void setupGui() {			
-	
+
+	public void setupGui() {
+		fromLocationButton = (Button) findViewById(R.id.FromLocation);
+		toLocationButton = (Button) findViewById(R.id.ToLocation);
+
 		fromLocationButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				fromSelected = true;
@@ -74,7 +83,7 @@ public class MapActivity extends Activity {
 				updateButtons();
 			}
 		});
-		
+
 		toLocationButton.setOnClickListener(new OnClickListener() {
 			public void onClick (View v) {
 				fromSelected = false;
@@ -82,14 +91,21 @@ public class MapActivity extends Activity {
 				updateButtons();
 			}
 		});
-		
+
 		MapFragment mapFragment = (MapFragment) getFragmentManager()
 				.findFragmentById(R.id.preview_map);
 		map = mapFragment.getMap();
 		map.setMyLocationEnabled(true);
-
+		map.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+			@Override
+			public void onMyLocationChange(Location loc) { // find crimes once - after user location found
+				if (!crimesDisplayed) {
+					crimesDisplayed = true;
+					findCrime(loc.getLatitude(), loc.getLongitude());
+				}
+			}
+		});
 		map.setOnMapClickListener(new OnMapClickListener() {
-					
 			@Override
 			public void onMapClick(LatLng point) {
 				// TODO Auto-generated method stub
@@ -105,10 +121,10 @@ public class MapActivity extends Activity {
 					toLocSet = true;
 					updateButtons();
 				}
-				    
+
 			}
 		});
-					
+
 		Button viewRunsButton = (Button) findViewById(R.id.customroute1);
 		viewRunsButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -132,6 +148,18 @@ public class MapActivity extends Activity {
 
 			}
 		});
+	}
+
+	private void findCrime(double lat, double lng) {
+		Crime[] crimes = CrimeIncidents.getNearbyCrimes(lat, lng);
+
+		Log.i("findCrime", "Found " + crimes.length + " crimes by (" + lat + "," + lng + ").");
+		for (Crime crime : crimes) {
+			Log.i("findCrime", "Crime: " + crime);
+			map.addMarker(new MarkerOptions().position(new LatLng(crime.getCoords()[0], crime.getCoords()[1]))
+					.title("Crime")
+					.snippet(crime.getOffense()));
+		}
 	}
 
 	@Override
