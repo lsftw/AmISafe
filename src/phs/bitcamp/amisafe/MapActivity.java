@@ -38,7 +38,7 @@ public class MapActivity extends Activity {//implements TweetListener {
 
 	private boolean crimesDisplayed = false;
 	private ColorDrawable indicator;
-	private final int SEVERITY_MEASURE = 450;
+	private final int SEVERITY_MEASURE = 325;
 	private final int HEATMAP_RADIUS = 50; // must be between 10-50
 
 	private int mInterval = 5000; // 5 seconds by default, can be changed later
