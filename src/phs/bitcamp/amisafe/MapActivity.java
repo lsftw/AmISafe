@@ -2,17 +2,26 @@ package phs.bitcamp.amisafe;
 
 import java.util.List;
 
+import phs.bitcamp.amisafe.data.Crime;
+import phs.bitcamp.amisafe.data.CrimeIncidents;
+import android.app.ActionBar;
 import android.app.Activity;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -21,21 +30,27 @@ public class MapActivity extends Activity {//implements TweetListener {
 	private GoogleMap map;
 	//	private TwitterConnection tc;
 
+	private boolean crimesDisplayed = false;
+	private ColorDrawable indicator;
+	private final int SEVERITY_MEASURE = 1000;
+
 	private int mInterval = 5000; // 5 seconds by default, can be changed later
 	private Handler mHandler;
 	private int tweetsDisplayed = 0;
+
+	boolean fromSelected, toSelected, fromLocSet, toLocSet;
+	LatLng fromLocation, toLocation;
+	Button fromLocationButton;
+	Button toLocationButton;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_map);
 
+		CrimeIncidents.loadDatabase(this);
 		setupGui();
 		// Get map fragment
-		MapFragment mapFragment = (MapFragment) getFragmentManager()
-				.findFragmentById(R.id.preview_map);
-		map = mapFragment.getMap();
-		map.setMyLocationEnabled(true);
 
 //		TwitterConnection.start();
 		//		TwitterConnection.addTweetListener(this);
@@ -43,38 +58,117 @@ public class MapActivity extends Activity {//implements TweetListener {
 		repeatedlyGetTweets();
 	}
 
-	private void repeatedlyGetTweets() {
-		mHandler = new Handler();
+	/*
+	private void addHeatMap() {
+		List<LatLng> list = null;
+		
+		try {
+			//list = crime data?
+		} catch (JSONException e) {
+	        Toast.makeText(this, "Problem reading list of locations.", Toast.LENGTH_LONG).show();
+	    }
+		
+		
 
-		final Runnable mStatusChecker = new Runnable() {
-			@Override 
-			public void run() {
-				updateTweets();
-				mHandler.postDelayed(this, mInterval);
-			}
-		};
-		mStatusChecker.run(); 
-
-		//		void stopRepeatingTask() {
-		//			mHandler.removeCallbacks(mStatusChecker);
-		//		}
 	}
-	private void updateTweets() { // get tweet list and display as markers
-		List<Tweet> tweets = TwitterConnection.getTweets();
-		// once a marker is added, don't add it again. do this by keeping track of the index of the latest displayed tweet
-		for (; tweetsDisplayed < tweets.size(); tweetsDisplayed++) {
-			Tweet curTweet = tweets.get(tweetsDisplayed);
-			map.addMarker(new MarkerOptions().position(curTweet.getLocation())
-					.title(curTweet.getTweet()));
+*/
+	public void updateButtons() {
+		if (fromLocSet && toLocSet) {
+			fromSelected = false;
+			toSelected = false;
+			fromLocSet = false;
+			toLocSet = false;
+			pathfind();
 		}
+
+		if (fromSelected) {
+			fromLocationButton.setEnabled(false);
+			toLocationButton.setEnabled(true);			
+		} else if (toSelected) {
+			fromLocationButton.setEnabled(true);
+			toLocationButton.setEnabled(false);
+		} else {
+			fromLocationButton.setEnabled(true);
+			toLocationButton.setEnabled(true);
+		}
+
+		if (fromLocSet) {
+			fromLocationButton.setText("From Set");
+		} 
+		if (toLocSet) {
+			toLocationButton.setText("To Set");
+		}
+
+	}
+
+	public void pathfind() {
+
 	}
 
 	public void setupGui() {
+		fromLocationButton = (Button) findViewById(R.id.FromLocation);
+		toLocationButton = (Button) findViewById(R.id.ToLocation);
+
+		fromLocationButton.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				fromSelected = true;
+				toSelected = false;
+				updateButtons();
+			}
+		});
+
+		toLocationButton.setOnClickListener(new OnClickListener() {
+			public void onClick (View v) {
+				fromSelected = false;
+				toSelected = true;
+				updateButtons();
+			}
+		});
+
+		MapFragment mapFragment = (MapFragment) getFragmentManager()
+				.findFragmentById(R.id.preview_map);
+		map = mapFragment.getMap();
+		map.setMyLocationEnabled(true);
+		indicator = new ColorDrawable(Color.BLACK);
+		ActionBar barbar = getActionBar();
+		barbar.setBackgroundDrawable(indicator);
+		
+		
+		map.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+			@Override
+			public void onMyLocationChange(Location loc) { // find crimes once - after user location found
+				if (!crimesDisplayed) {
+					crimesDisplayed = true;
+					Log.i("findcrime", "about to find some crime");
+					zoomToLocation(loc.getLatitude(), loc.getLongitude());
+					findCrime(loc.getLatitude(), loc.getLongitude());
+				}
+			}
+		});
+		map.setOnMapClickListener(new OnMapClickListener() {
+			@Override
+			public void onMapClick(LatLng point) {
+				// TODO Auto-generated method stub
+				//If they click the from button then the point on the map they click
+				//will be stored as the location for the from location. Similar setup with
+				// the to location.
+				if(fromSelected) {
+					fromLocation = point;
+					fromLocSet = true;
+					updateButtons();
+				} else if (toSelected) {
+					toLocation = point;
+					toLocSet = true;
+					updateButtons();
+				}
+
+			}
+		});
+
 		Button viewRunsButton = (Button) findViewById(R.id.customroute1);
 		viewRunsButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				System.out.println("CLICK:" + this);
 				//Intent intent = new Intent(MapActivity.this, MainActivity.class);
 				//startActivity(intent);
 
@@ -94,6 +188,48 @@ public class MapActivity extends Activity {//implements TweetListener {
 
 			}
 		});
+	}
+
+	private void findCrime(double lat, double lng) {
+		List<Crime> crimes = CrimeIncidents.getNearbyCrimes(lat, lng);
+
+		Log.i("findCrime", "Found " + crimes.size() + " crimes by (" + lat + "," + lng + ").");
+		Toast.makeText(this,"Found " + crimes.size() + " crimes by (" + lat + "," + lng + ").", 
+                Toast.LENGTH_LONG).show();
+		for (Crime crime : crimes) {
+//			Log.i("findCrime", "Crime: " + crime);
+			map.addMarker(new MarkerOptions().position(new LatLng(crime.getCoords()[0], crime.getCoords()[1]))
+					.title("Crime")
+					.snippet(crime.getOffense()));
+		}
+		
+		//generate color schema here
+		changeColorIndicator(crimes.size());
+	}
+	
+	public void changeColorIndicator(int severity){
+		// red (204, 51, 0)
+		// green (102, 255, 153)
+		int red, green, blue;
+
+		float p = ((float) severity) / SEVERITY_MEASURE;
+		float q = 1 - p;
+		if( severity < 500){
+			p *= 2;
+			q = 1 - p;
+			//use yellow and green
+			red = (int) (255 * p + 0 * q);
+			green = (int) (255 * p + 255 * q);
+			blue = (int) (0 * p + 0 * q);
+		}else{
+			//use yellow and red
+			q *= 2;
+			p = 1 - q;
+			red = (int) (255 * p + 255 * q);
+			green = (int) (0 * p + 255 * q);
+			blue = (int) (0 * p + 0 * q);
+		}
+		indicator.setColor(Color.rgb(red, green, blue));
 	}
 
 	@Override
@@ -120,6 +256,31 @@ public class MapActivity extends Activity {//implements TweetListener {
 		if (map != null) {
 			LatLng coordinates = new LatLng(lat, lon);
 			map.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 17f));
+		}
+	}
+	private void repeatedlyGetTweets() {
+		mHandler = new Handler();
+
+		final Runnable mStatusChecker = new Runnable() {
+			@Override 
+			public void run() {
+				updateTweets();
+				mHandler.postDelayed(this, mInterval);
+			}
+		};
+		mStatusChecker.run(); 
+
+		//		void stopRepeatingTask() {
+		//			mHandler.removeCallbacks(mStatusChecker);
+		//		}
+	}
+	private void updateTweets() { // get tweet list and display as markers
+		List<Tweet> tweets = TwitterConnection.getTweets();
+		// once a marker is added, don't add it again. do this by keeping track of the index of the latest displayed tweet
+		for (; tweetsDisplayed < tweets.size(); tweetsDisplayed++) {
+			Tweet curTweet = tweets.get(tweetsDisplayed);
+			map.addMarker(new MarkerOptions().position(curTweet.getLocation())
+					.title(curTweet.getTweet()));
 		}
 	}
 
