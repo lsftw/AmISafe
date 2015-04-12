@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import phs.bitcamp.amisafe.data.CrimeIncidents;
+
 import twitter4j.FilterQuery;
 import twitter4j.GeoLocation;
 import twitter4j.StallWarning;
@@ -66,10 +68,10 @@ public class TwitterConnection {
 				Date time = status.getCreatedAt();
 				// LOCATION
 				GeoLocation geolocation = status.getGeoLocation();
-				double latitude = geolocation.getLatitude();
-				double longitude = geolocation.getLongitude();
-				LatLng loc = new LatLng(latitude, longitude);
-
+				//double latitude = geolocation.getLatitude();
+				//double longitude = geolocation.getLongitude();
+				//LatLng loc = new LatLng(latitude, longitude);
+				LatLng loc = CrimeIncidents.getRandomNearbyLoc();
 				Tweet tweet = new Tweet(content, time, loc);
 				Log.i("twitter", "new tweet received.");
 				tweets.add(tweet);
@@ -99,7 +101,7 @@ public class TwitterConnection {
 
 		FilterQuery fq = new FilterQuery();
 
-		String keywords[] = {"it'sasecretraspberry"};
+		String keywords[] = {"dangerdangerdanger"};
 
 		fq.track(keywords);
 		twitterStream.addListener(listener);

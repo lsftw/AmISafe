@@ -24,6 +24,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
@@ -37,7 +38,7 @@ public class MapActivity extends Activity {//implements TweetListener {
 
 	private boolean crimesDisplayed = false;
 	private ColorDrawable indicator;
-	private final int SEVERITY_MEASURE = 600;
+	private final int SEVERITY_MEASURE = 450;
 	private final int HEATMAP_RADIUS = 50; // must be between 10-50
 
 	private int mInterval = 5000; // 5 seconds by default, can be changed later
@@ -60,7 +61,7 @@ public class MapActivity extends Activity {//implements TweetListener {
 		setupGui();
 		// Get map fragment
 
-//		TwitterConnection.start();
+		TwitterConnection.start();
 		//		TwitterConnection.addTweetListener(this);
 		//		tc = new TwitterConnection(this);
 		repeatedlyGetTweets();
@@ -255,10 +256,8 @@ public class MapActivity extends Activity {//implements TweetListener {
 			blue = (int) (0 * p + 0 * q);
 		}else{
 			//use yellow and red
-			q *= 2;
-			p = 1 - q;
 			red = (int) (255 * p + 255 * q);
-			green = (int) (0 * p + 255 * q);
+			green = (int) (0 * p + 150 * q);
 			blue = (int) (0 * p + 0 * q);
 		}
 		indicator.setColor(Color.rgb(red, green, blue));
@@ -290,9 +289,10 @@ public class MapActivity extends Activity {//implements TweetListener {
 	private void zoomToLocation(double lat, double lon) {
 		if (map != null) {
 			LatLng coordinates = new LatLng(lat, lon);
-			map.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 14.5f));
+			map.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 14.3f));
 		}
 	}
+	
 	private void repeatedlyGetTweets() {
 		mHandler = new Handler();
 
@@ -304,18 +304,16 @@ public class MapActivity extends Activity {//implements TweetListener {
 			}
 		};
 		mStatusChecker.run(); 
-
-		//		void stopRepeatingTask() {
-		//			mHandler.removeCallbacks(mStatusChecker);
-		//		}
 	}
+	
 	private void updateTweets() { // get tweet list and display as markers
 		List<Tweet> tweets = TwitterConnection.getTweets();
 		// once a marker is added, don't add it again. do this by keeping track of the index of the latest displayed tweet
 		for (; tweetsDisplayed < tweets.size(); tweetsDisplayed++) {
 			Tweet curTweet = tweets.get(tweetsDisplayed);
 			map.addMarker(new MarkerOptions().position(curTweet.getLocation())
-					.title(curTweet.getTweet()));
+					.title(curTweet.getTweet())
+					.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_notification)));
 		}
 	}
 	

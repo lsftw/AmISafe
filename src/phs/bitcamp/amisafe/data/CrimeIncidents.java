@@ -3,6 +3,9 @@ package phs.bitcamp.amisafe.data;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import phs.bitcamp.amisafe.DatabaseHelper;
 import android.content.Context;
@@ -14,6 +17,7 @@ public class CrimeIncidents {
 	public static SQLiteDatabase myDB;
 	private static final double FAR_RANGE = .03;
 	private static final double NEARBY_RANGE = 0.002;
+	private static List<Crime> nearbyCrimes = new ArrayList<Crime>();
 		
 	public static List<Crime> getNearbyCrimes(double lat, double lon, boolean nearby){
 		ArrayList<Crime> crimeList = new ArrayList<Crime>();
@@ -46,6 +50,8 @@ public class CrimeIncidents {
 		    
 		}
 		c.close();
+		if(nearby == false)
+			nearbyCrimes = crimeList;
 		return crimeList;
 	}
 	
@@ -65,6 +71,12 @@ public class CrimeIncidents {
 //		myDatabaseHelper.close();
 
 
+	}
+	
+	public static LatLng getRandomNearbyLoc(){
+		Random randomGenerator = new Random();
+		Crime tmp = nearbyCrimes.get(randomGenerator.nextInt(nearbyCrimes.size()));
+		return new LatLng(tmp.getCoords()[0], tmp.getCoords()[1]);
 	}
 	
 }
