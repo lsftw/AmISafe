@@ -2,9 +2,14 @@ package phs.bitcamp.amisafe;
 
 import java.util.List;
 
+import org.json.JSONException;
+
 import phs.bitcamp.amisafe.data.Crime;
 import phs.bitcamp.amisafe.data.CrimeIncidents;
+import android.app.ActionBar;
 import android.app.Activity;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +30,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapActivity extends Activity {
 	private GoogleMap map;
 	private boolean crimesDisplayed = false;
+	private ColorDrawable indicator;
+	private final int SEVERITY_MEASURE = 1000;
 
 	boolean fromSelected, toSelected, fromLocSet, toLocSet;
 	LatLng fromLocation, toLocation;
@@ -39,9 +46,22 @@ public class MapActivity extends Activity {
 		CrimeIncidents.loadDatabase(this);
 		setupGui();
 		// Get map fragment
+		
+	}
+	/*
+	private void addHeatMap() {
+		List<LatLng> list = null;
+		
+		try {
+			//list = crime data?
+		} catch (JSONException e) {
+	        Toast.makeText(this, "Problem reading list of locations.", Toast.LENGTH_LONG).show();
+	    }
+		
+		
 
 	}
-
+*/
 	public void updateButtons() {
 		if (fromLocSet && toLocSet) {
 			fromSelected = false;
@@ -99,6 +119,11 @@ public class MapActivity extends Activity {
 				.findFragmentById(R.id.preview_map);
 		map = mapFragment.getMap();
 		map.setMyLocationEnabled(true);
+		indicator = new ColorDrawable(Color.BLACK);
+		ActionBar barbar = getActionBar();
+		barbar.setBackgroundDrawable(indicator);
+		
+		
 		map.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
 			@Override
 			public void onMyLocationChange(Location loc) { // find crimes once - after user location found
@@ -167,6 +192,34 @@ public class MapActivity extends Activity {
 					.title("Crime")
 					.snippet(crime.getOffense()));
 		}
+		
+		//generate color schema here
+		changeColorIndicator(crimes.size());
+	}
+	
+	public void changeColorIndicator(int severity){
+		// red (204, 51, 0)
+		// green (102, 255, 153)
+		int red, green, blue;
+
+		float p = ((float) severity) / SEVERITY_MEASURE;
+		float q = 1 - p;
+		if( severity < 500){
+			p *= 2;
+			q = 1 - p;
+			//use yellow and green
+			red = (int) (255 * p + 0 * q);
+			green = (int) (255 * p + 255 * q);
+			blue = (int) (0 * p + 0 * q);
+		}else{
+			//use yellow and red
+			q *= 2;
+			p = 1 - q;
+			red = (int) (255 * p + 255 * q);
+			green = (int) (0 * p + 255 * q);
+			blue = (int) (0 * p + 0 * q);
+		}
+		indicator.setColor(Color.rgb(red, green, blue));
 	}
 
 	@Override
