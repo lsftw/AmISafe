@@ -1,5 +1,6 @@
 package phs.bitcamp.amisafe;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import phs.bitcamp.amisafe.data.Crime;
@@ -25,6 +26,10 @@ import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.TileOverlay;
+import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.maps.android.heatmaps.Gradient;
+import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 public class MapActivity extends Activity {//implements TweetListener {
 	private GoogleMap map;
@@ -32,11 +37,14 @@ public class MapActivity extends Activity {//implements TweetListener {
 
 	private boolean crimesDisplayed = false;
 	private ColorDrawable indicator;
-	private final int SEVERITY_MEASURE = 1000;
+	private final int SEVERITY_MEASURE = 4000;
+	private final int HEATMAP_RADIUS = 50; // must be between 10-50
 
 	private int mInterval = 5000; // 5 seconds by default, can be changed later
 	private Handler mHandler;
 	private int tweetsDisplayed = 0;
+	private HeatmapTileProvider mProvider;
+	private TileOverlay mOverlay;
 
 	boolean fromSelected, toSelected, fromLocSet, toLocSet;
 	LatLng fromLocation, toLocation;
@@ -102,6 +110,36 @@ public class MapActivity extends Activity {//implements TweetListener {
 	}
 
 	public void pathfind() {
+
+	}
+	public void heatmap(List<Crime> crimes) {
+		// convert to coords list
+		List<LatLng> coords = new ArrayList<LatLng>(crimes.size());
+		for (Crime crime : crimes) {
+			double[] latlng = crime.getCoords();
+			coords.add(new LatLng(latlng[0], latlng[1]));
+		}
+		
+		// Create the gradient that isn't green/red
+		int[] colors = {
+			    Color.rgb(255, 255, 0), // yellow
+			    Color.rgb(255, 0, 0)    // red
+			};
+
+			float[] startPoints = {
+			    0.2f, 1f
+			};
+
+			Gradient gradient = new Gradient(colors, startPoints);
+		
+		// Create a heat map tile provider, passing it the latlngs of the police stations.
+	    mProvider = new HeatmapTileProvider.Builder()
+	        .data(coords)
+	        .gradient(gradient)
+	        .radius(HEATMAP_RADIUS)
+	        .build();
+	    // Add a tile overlay to the map, using the heat map tile provider.
+	    mOverlay = map.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
 
 	}
 
@@ -192,19 +230,18 @@ public class MapActivity extends Activity {//implements TweetListener {
 
 	private void findCrime(double lat, double lng) {
 		List<Crime> crimes = CrimeIncidents.getNearbyCrimes(lat, lng);
-
 		Log.i("findCrime", "Found " + crimes.size() + " crimes by (" + lat + "," + lng + ").");
 		Toast.makeText(this,"Found " + crimes.size() + " crimes by (" + lat + "," + lng + ").", 
                 Toast.LENGTH_LONG).show();
-		for (Crime crime : crimes) {
-//			Log.i("findCrime", "Crime: " + crime);
+		/*for (Crime crime : crimes) {
 			map.addMarker(new MarkerOptions().position(new LatLng(crime.getCoords()[0], crime.getCoords()[1]))
 					.title("Crime")
 					.snippet(crime.getOffense()));
-		}
+		}*/
 		
 		//generate color schema here
 		changeColorIndicator(crimes.size());
+		heatmap(crimes);
 	}
 	
 	public void changeColorIndicator(int severity){
