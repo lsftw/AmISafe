@@ -54,4 +54,10 @@ public class Crime {
 	public TIME_OF_DAY getTOD(){
 		return this.tod;
 	}
+
+	@Override
+	public String toString() {
+		return "Crime [id=" + id + ", tod=" + tod + ", offense=" + offense
+				+ ", latitude=" + latitude + ", longitude=" + longitude + "]";
+	}
 }

@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -103,6 +104,8 @@ public class MapActivity extends Activity {
 			public void onMyLocationChange(Location loc) { // find crimes once - after user location found
 				if (!crimesDisplayed) {
 					crimesDisplayed = true;
+					Log.i("findcrime", "about to find some crime");
+					zoomToLocation(loc.getLatitude(), loc.getLongitude());
 					findCrime(loc.getLatitude(), loc.getLongitude());
 				}
 			}
@@ -156,8 +159,10 @@ public class MapActivity extends Activity {
 		List<Crime> crimes = CrimeIncidents.getNearbyCrimes(lat, lng);
 
 		Log.i("findCrime", "Found " + crimes.size() + " crimes by (" + lat + "," + lng + ").");
+		Toast.makeText(this,"Found " + crimes.size() + " crimes by (" + lat + "," + lng + ").", 
+                Toast.LENGTH_LONG).show();
 		for (Crime crime : crimes) {
-			Log.i("findCrime", "Crime: " + crime);
+//			Log.i("findCrime", "Crime: " + crime);
 			map.addMarker(new MarkerOptions().position(new LatLng(crime.getCoords()[0], crime.getCoords()[1]))
 					.title("Crime")
 					.snippet(crime.getOffense()));
