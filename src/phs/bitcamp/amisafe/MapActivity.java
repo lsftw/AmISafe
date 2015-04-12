@@ -37,7 +37,7 @@ public class MapActivity extends Activity {//implements TweetListener {
 
 	private boolean crimesDisplayed = false;
 	private ColorDrawable indicator;
-	private final int SEVERITY_MEASURE = 4000;
+	private final int SEVERITY_MEASURE = 600;
 	private final int HEATMAP_RADIUS = 50; // must be between 10-50
 
 	private int mInterval = 5000; // 5 seconds by default, can be changed later
@@ -144,10 +144,8 @@ public class MapActivity extends Activity {//implements TweetListener {
 	}
 
 	public void setupGui() {
-		fromLocationButton = (Button) findViewById(R.id.FromLocation);
-		toLocationButton = (Button) findViewById(R.id.ToLocation);
 
-		fromLocationButton.setOnClickListener(new OnClickListener() {
+		/*fromLocationButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				fromSelected = true;
 				toSelected = false;
@@ -161,7 +159,7 @@ public class MapActivity extends Activity {//implements TweetListener {
 				toSelected = true;
 				updateButtons();
 			}
-		});
+		});*/
 
 		MapFragment mapFragment = (MapFragment) getFragmentManager()
 				.findFragmentById(R.id.preview_map);
@@ -193,17 +191,17 @@ public class MapActivity extends Activity {//implements TweetListener {
 				if(fromSelected) {
 					fromLocation = point;
 					fromLocSet = true;
-					updateButtons();
+					//updateButtons();
 				} else if (toSelected) {
 					toLocation = point;
 					toLocSet = true;
-					updateButtons();
+					//updateButtons();
 				}
 
 			}
 		});
 
-		Button viewRunsButton = (Button) findViewById(R.id.customroute1);
+		/*Button viewRunsButton = (Button) findViewById(R.id.customroute1);
 		viewRunsButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -217,21 +215,17 @@ public class MapActivity extends Activity {//implements TweetListener {
 				//that they want to travel in between and we can pull the LatLng from our map.
 				//Otherwise it's too complicated to run specific addresses via map 
 				//(as opposed to just LatLng). 
-				View customrouteButton = findViewById(R.id.customroute1);
-				View fromButton = findViewById(R.id.FromLocation);
-				View toButton = findViewById(R.id.ToLocation);
-				customrouteButton.setVisibility(View.INVISIBLE);
-				fromButton.setVisibility(View.VISIBLE);
-				toButton.setVisibility(View.VISIBLE);
+				//View customrouteButton = findViewById(R.id.customroute1);
+				//customrouteButton.setVisibility(View.INVISIBLE);
 
 			}
-		});
+		});*/
 	}
 
 	private void findCrime(double lat, double lng) {
-		List<Crime> crimes = CrimeIncidents.getNearbyCrimes(lat, lng);
-		Log.i("findCrime", "Found " + crimes.size() + " crimes by (" + lat + "," + lng + ").");
-		Toast.makeText(this,"Found " + crimes.size() + " crimes by (" + lat + "," + lng + ").", 
+		List<Crime> crimes_far = CrimeIncidents.getNearbyCrimes(lat, lng, false);
+		List<Crime> crimes_near = CrimeIncidents.getNearbyCrimes(lat, lng, true);
+		Toast.makeText(this,"Found " + crimes_near.size() + " crimes by (" + lat + "," + lng + ").", 
                 Toast.LENGTH_LONG).show();
 		/*for (Crime crime : crimes) {
 			map.addMarker(new MarkerOptions().position(new LatLng(crime.getCoords()[0], crime.getCoords()[1]))
@@ -240,8 +234,9 @@ public class MapActivity extends Activity {//implements TweetListener {
 		}*/
 		
 		//generate color schema here
-		changeColorIndicator(crimes.size());
-		heatmap(crimes);
+		changeColorIndicator(crimes_near.size());
+		heatmap(crimes_far);
+		
 	}
 	
 	public void changeColorIndicator(int severity){
@@ -251,7 +246,7 @@ public class MapActivity extends Activity {//implements TweetListener {
 
 		float p = ((float) severity) / SEVERITY_MEASURE;
 		float q = 1 - p;
-		if( severity < 500){
+		if( severity < (SEVERITY_MEASURE / 2)){
 			p *= 2;
 			q = 1 - p;
 			//use yellow and green
@@ -273,6 +268,9 @@ public class MapActivity extends Activity {//implements TweetListener {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
+		for (int i = 0; i < menu.size(); i++){
+			menu.getItem(i).setVisible(false);
+		}
 		return true;
 	}
 
@@ -292,7 +290,7 @@ public class MapActivity extends Activity {//implements TweetListener {
 	private void zoomToLocation(double lat, double lon) {
 		if (map != null) {
 			LatLng coordinates = new LatLng(lat, lon);
-			map.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 17f));
+			map.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 14.5f));
 		}
 	}
 	private void repeatedlyGetTweets() {
@@ -320,6 +318,8 @@ public class MapActivity extends Activity {//implements TweetListener {
 					.title(curTweet.getTweet()));
 		}
 	}
+	
+	
 
 	//	@Override
 	//	public void newTweetReceived(Tweet newTweet) {

@@ -28,7 +28,7 @@ public class MainActivity extends Activity {
 	}
 	
 	private void setupGui() {
-		Button viewRunsButton = (Button) findViewById(R.id.nextScreenButton);
+		/* Button viewRunsButton = (Button) findViewById(R.id.nextScreenButton);
 		viewRunsButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -38,13 +38,16 @@ public class MainActivity extends Activity {
 				//and display the new address
 				
 			}
-		});
+		}); */
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
+		for (int i = 0; i < menu.size(); i++){
+			menu.getItem(i).setVisible(false);
+		}
 		return true;
 	}
 

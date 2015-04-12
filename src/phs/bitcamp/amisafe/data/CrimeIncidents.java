@@ -12,16 +12,23 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class CrimeIncidents {
 	public static SQLiteDatabase myDB;
-	private static final double NEARBY_RANGE = .01; 
+	private static final double FAR_RANGE = .03;
+	private static final double NEARBY_RANGE = 0.002;
 		
-	public static List<Crime> getNearbyCrimes(double lat, double lon){
+	public static List<Crime> getNearbyCrimes(double lat, double lon, boolean nearby){
 		ArrayList<Crime> crimeList = new ArrayList<Crime>();
 		String selectQuery = "SELECT _id, tod, offense, lat, long FROM android_manifest a WHERE " +
 //				"a._id BETWEEN 2 and 3000";
 				"a.lat BETWEEN ? and ? AND a.long BETWEEN ? and ?";
+		double range_mod;
+		if(nearby == true){
+			range_mod = NEARBY_RANGE;
+		}else{
+			range_mod = FAR_RANGE;
+		}
 		String[] ranges = { 
-				"" + (lat - NEARBY_RANGE), "" + (lat + NEARBY_RANGE), //latitude range
-				"" + (lon - NEARBY_RANGE), "" + (lon + NEARBY_RANGE)};
+				"" + (lat - range_mod), "" + (lat + range_mod), //latitude range
+				"" + (lon - range_mod), "" + (lon + range_mod)};
 		
 		Cursor c = myDB.rawQuery(selectQuery, ranges);
 		Crime temp;
